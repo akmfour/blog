@@ -24,7 +24,7 @@ public class JwtAccessDeniedHandler implements AccessDeniedHandler {
         response.setCharacterEncoding("UTF-8");
 
         // 使用你自訂的 ApiResponse 格式返回錯誤訊息
-        ApiResponse<Object> body = ApiResponse.fail(ResultCode.FORBIDDEN, "权限不足，无法访问此资源");
+        ApiResponse<Object> body = ApiResponse.fail(ResultCode.FORBIDDEN, null);
 
         // 使用 ObjectMapper 將物件轉換為 JSON 字串並寫入 response
         new ObjectMapper().writeValue(response.getWriter(), body);

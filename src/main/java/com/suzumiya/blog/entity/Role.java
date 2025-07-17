@@ -16,15 +16,11 @@ public class Role {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer roleId; // 角色的 ID 通常不用 Long
+    private Integer roleId;
 
     @Enumerated(EnumType.STRING) // 將 Enum 以字串形式存儲
     @Column(nullable = false, unique = true, length = 20)
-    private RoleName roleName; // 角色名稱
-
-    public Role(RoleName roleName) {
-        this.roleName = roleName;
-    }
+    private RoleName roleName;
 
     @Override
     public boolean equals(Object o) {

@@ -15,7 +15,7 @@ public class ApiResponse<T> {
     private T data;
 
     //SUCCESS
-    public static <T> ApiResponse<T> success(T data, ResultCode success) {
+    public static <T> ApiResponse<T> success(T data) {
         // 直接使用 ResultCode.SUCCESS 来构造
         ResultCode rc = ResultCode.SUCCESS;
         return new ApiResponse<>(true, rc.getCode(), rc.getMessage(), data);
@@ -24,14 +24,5 @@ public class ApiResponse<T> {
     //Fail
     public static <T> ApiResponse<T> fail(ResultCode resultCode, T data) {
         return new ApiResponse<>(false, resultCode.getCode(), resultCode.getMessage(), data);
-    }
-
-    @Override
-    public String toString() {
-        return "ApiResponse{" +
-                ", code=" + code +
-                ", message='" + message + '\'' +
-                ", data=" + data +
-                '}';
     }
 }

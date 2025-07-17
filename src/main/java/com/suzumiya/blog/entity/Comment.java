@@ -12,7 +12,7 @@ import java.util.Set;
 
 @Getter
 @Setter
-@ToString(exclude = {"post", "author", "parent", "replies"}) // 避免關聯造成的無限迴圈
+@ToString(exclude = {"author", "parent", "replies"}) // 避免關聯造成的無限迴圈
 @NoArgsConstructor
 @Entity
 @Table(name = "comments", indexes = {
@@ -32,7 +32,7 @@ public class Comment {
 
     @ManyToOne(fetch = FetchType.LAZY) // 一個使用者可以有多個留言，但留言者可以是匿名，所以 optional
     @JoinColumn(name = "user_id")
-    private User author;
+    private UserEntity author;
 
     @ManyToOne(fetch = FetchType.LAZY) // 自我關聯，指向父留言
     @JoinColumn(name = "parent_id")
