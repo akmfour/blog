@@ -75,8 +75,4 @@ public enum ResultCode {
         this.code = code;
         this.message = message;
     }
-
-    public String getMessage(String customDetail) {
-        return this.message + (customDetail == null || customDetail.isEmpty() ? "" : " (" + customDetail + ")");
-    }
 }

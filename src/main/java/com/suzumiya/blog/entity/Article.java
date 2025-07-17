@@ -16,6 +16,8 @@ import java.util.Set;
 @Setter
 @ToString(exclude = {"author", "tags", "comments"}) // 排除關聯欄位
 @NoArgsConstructor
+@AllArgsConstructor
+@Builder
 @Entity
 @EntityListeners(AuditingEntityListener.class) // **重要：為了讓 @CreatedDate 生效**
 @Table(name = "articles", indexes = {
@@ -59,7 +61,7 @@ public class Article {
     // 一篇文章必須有一個作者，所以 optional = false
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "user_id", nullable = false)
-    private User author;
+    private UserEntity author;
 
     // 中間表
     @ManyToMany(cascade = { CascadeType.PERSIST, CascadeType.MERGE })

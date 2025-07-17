@@ -4,11 +4,15 @@ import jakarta.persistence.*;
 import lombok.*;
 import jakarta.persistence.Id;
 import org.hibernate.annotations.CreationTimestamp;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 
 import java.time.LocalDateTime;
+import java.util.Collection;
 import java.util.HashSet;
-import java.util.Objects;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Getter
 @Setter
@@ -16,7 +20,7 @@ import java.util.Set;
 @NoArgsConstructor
 @Entity
 @Table(name = "users")
-public class UserEntity{
+public class UserEntity implements UserDetails {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -27,10 +31,16 @@ public class UserEntity{
     private String email;
 
     @Column(unique = true, nullable = false)
-    private String userName;
+    private String username;
 
-    @Column(nullable = false, length = 255) // 長度應足以儲存加密後的 hash
+    @Column(nullable = false, length = 255)
     private String password;
+
+
+    // --- JWT ---
+
+    @Column(length = 512) // 長度要足夠長
+    private String refreshToken;
 
     // --- 關聯關係 (Relationships) ---
 
@@ -42,8 +52,7 @@ public class UserEntity{
     )
     private Set<Article> articles = new HashSet<>(); // 建議用 Set
 
-    // (進階建議) 使用者角色關聯
-    @ManyToMany(fetch = FetchType.EAGER) // 權限資訊通常建議立即載入
+    @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
             name = "user_roles",
             joinColumns = @JoinColumn(name = "user_id"),
@@ -51,11 +60,10 @@ public class UserEntity{
     )
     private Set<Role> roles = new HashSet<>();
 
-
     // --- 時間戳記 ---
     @CreationTimestamp // 使用 Hibernate 的註解自動生成時間
     @Column(nullable = false, updatable = false)
-    private LocalDateTime registerDate; // **重要：使用 LocalDateTime**
+    private LocalDateTime registerDate;
 
 
     // --- Equals & HashCode ---
@@ -65,11 +73,57 @@ public class UserEntity{
         if (o == null || getClass() != o.getClass()) return false;
         UserEntity user = (UserEntity) o;
         // 基於唯一的 username 進行比較
-            return userName != null && Objects.equals(userName, user.userName);
+        return userId != null && userId.equals(user.userId);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(userName);
+        return getClass().hashCode();
+    }
+
+    // UserDetails
+
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        // 將 Set<Role> 轉換為 Collection<GrantedAuthority>
+        return this.roles.stream()
+                .map(role -> new SimpleGrantedAuthority(role.getRoleName().name()))
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public String getPassword() {
+        return this.password;
+    }
+
+    @Override
+    public String getUsername() {
+        // 用 email 來做為登入的「用戶名」
+        return this.email;
+    }
+
+    public String getUserName() {
+        // 实际的用戶名
+        return this.username;
+    }
+
+    @Override
+    public boolean isAccountNonExpired() {
+        return true; // 或者根據你的業務邏輯返回資料庫中的欄位值
+    }
+
+    @Override
+    public boolean isAccountNonLocked() {
+        return true;
+    }
+
+    @Override
+    public boolean isCredentialsNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return true;
     }
 }
